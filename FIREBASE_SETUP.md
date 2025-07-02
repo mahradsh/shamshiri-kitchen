@@ -83,7 +83,8 @@ service cloud.firestore {
 When you log in:
 - **Admin account**: Creates admin user document + seeds all menu items
 - **Staff account**: Creates staff user document automatically
-- **Collections**: Creates `users`, `items`, and `orders` collections in Firestore
+- **Collections**: Creates `users`, `items`, `orders`, and `settings` collections in Firestore
+- **SMS Settings**: Admin phone numbers and SMS preferences sync across all devices
 
 ## 🔧 Features Implemented
 
@@ -99,13 +100,18 @@ When you log in:
 - ✅ Add/delete items with location assignment
 - ✅ View all orders in real-time
 - ✅ User management information
+- ✅ SMS notification settings (up to 3 phone numbers)
+- ✅ Cross-device settings synchronization
 
 ### Technical Features
 - ✅ Automatic user document creation
 - ✅ Firebase Firestore integration
 - ✅ Real-time data loading
 - ✅ Responsive mobile-first design
-- ✅ English interface throughout
+- ✅ Persian/Farsi language support with proper fonts
+- ✅ Twilio SMS integration for order notifications
+- ✅ Cross-device settings synchronization via Firebase
+- ✅ Async SMS delivery for fast order placement
 
 ## 🚀 Ready to Use!
 

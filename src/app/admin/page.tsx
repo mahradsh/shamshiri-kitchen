@@ -11,7 +11,8 @@ import {
   doc, 
   query, 
   orderBy,
-  updateDoc 
+  updateDoc,
+  limit 
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Item, Order } from '@/types';
@@ -82,18 +83,41 @@ export default function AdminPanel() {
     }
   };
 
-  const loadSMSSettings = () => {
+  const loadSMSSettings = async () => {
     try {
-      const saved = localStorage.getItem('smsSettings');
-      if (saved) {
-        const settings = JSON.parse(saved);
-        // Handle legacy single phone number or new array format
+      // Try to load from Firebase first
+      const settingsDoc = await getDocs(query(collection(db, 'settings'), limit(1)));
+      if (!settingsDoc.empty) {
+        const settings = settingsDoc.docs[0].data();
         if (settings.phoneNumbers && Array.isArray(settings.phoneNumbers)) {
           setAdminPhoneNumbers([...settings.phoneNumbers, '', ''].slice(0, 3));
-        } else if (settings.phoneNumber) {
-          setAdminPhoneNumbers([settings.phoneNumber, '', '']);
         }
         setSmsEnabled(settings.enabled || false);
+      } else {
+        // Fallback to localStorage for migration
+        const saved = localStorage.getItem('smsSettings');
+        if (saved) {
+          const settings = JSON.parse(saved);
+          // Handle legacy single phone number or new array format
+          if (settings.phoneNumbers && Array.isArray(settings.phoneNumbers)) {
+            setAdminPhoneNumbers([...settings.phoneNumbers, '', ''].slice(0, 3));
+          } else if (settings.phoneNumber) {
+            setAdminPhoneNumbers([settings.phoneNumber, '', '']);
+          }
+          setSmsEnabled(settings.enabled || false);
+          
+          // Migrate to Firebase
+          const validPhoneNumbers = (settings.phoneNumbers || [settings.phoneNumber]).filter(num => num && num.trim());
+          if (validPhoneNumbers.length > 0 || settings.enabled) {
+            await addDoc(collection(db, 'settings'), {
+              phoneNumbers: validPhoneNumbers,
+              enabled: settings.enabled || false,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            });
+            localStorage.removeItem('smsSettings'); // Clean up old storage
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading SMS settings:', error);
@@ -151,13 +175,32 @@ export default function AdminPanel() {
 
   const handleSaveSMSSettings = async () => {
     try {
-      // Filter out empty phone numbers and save
+      // Filter out empty phone numbers and save to Firebase
       const validPhoneNumbers = adminPhoneNumbers.filter(num => num.trim());
-      localStorage.setItem('smsSettings', JSON.stringify({
+      
+      // Check if settings document exists
+      const settingsQuery = query(collection(db, 'settings'), limit(1));
+      const settingsDoc = await getDocs(settingsQuery);
+      
+      const settingsData = {
         phoneNumbers: validPhoneNumbers,
-        enabled: smsEnabled
-      }));
-      alert('SMS settings saved successfully!');
+        enabled: smsEnabled,
+        updatedAt: new Date()
+      };
+      
+      if (!settingsDoc.empty) {
+        // Update existing settings
+        const settingsId = settingsDoc.docs[0].id;
+        await updateDoc(doc(db, 'settings', settingsId), settingsData);
+      } else {
+        // Create new settings document
+        await addDoc(collection(db, 'settings'), {
+          ...settingsData,
+          createdAt: new Date()
+        });
+      }
+      
+      alert('SMS settings saved successfully! Settings will now sync across all devices.');
     } catch (error) {
       console.error('Error saving SMS settings:', error);
       alert('Failed to save SMS settings');

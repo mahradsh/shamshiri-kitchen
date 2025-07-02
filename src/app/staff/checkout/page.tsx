@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, query, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 interface CartItem {
@@ -85,36 +85,47 @@ export default function CheckoutPage() {
       router.push('/staff?success=order-placed&tab=my-orders');
       
       // Send SMS notification to admin async (fire and forget)
-      const smsSettings = JSON.parse(localStorage.getItem('smsSettings') || '{}');
-      if (smsSettings.enabled && (smsSettings.phoneNumbers && smsSettings.phoneNumbers.length > 0)) {
-        // Send SMS to all configured numbers without waiting
-        smsSettings.phoneNumbers.forEach((phoneNumber: string) => {
-          if (phoneNumber.trim()) {
-            fetch('/api/send-sms', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                phoneNumber: phoneNumber.trim(),
-                orderNumber: orderNumber,
-                location: cart.location,
-                itemCount: cart.items.length,
-                placedBy: user.fullName,
-                orderItems: cart.items.map(item => ({
-                  name: item.item.namePersian || item.item.name,
-                  quantity: item.quantity
-                }))
-              })
-            }).then(() => {
-              console.log(`SMS notification sent successfully to ${phoneNumber}`);
-            }).catch((smsError) => {
-              console.error(`Failed to send SMS notification to ${phoneNumber}:`, smsError);
+      try {
+        const settingsQuery = query(collection(db, 'settings'), limit(1));
+        const settingsDoc = await getDocs(settingsQuery);
+        
+        if (!settingsDoc.empty) {
+          const smsSettings = settingsDoc.docs[0].data();
+          if (smsSettings.enabled && (smsSettings.phoneNumbers && smsSettings.phoneNumbers.length > 0)) {
+            // Send SMS to all configured numbers without waiting
+            smsSettings.phoneNumbers.forEach((phoneNumber: string) => {
+              if (phoneNumber.trim()) {
+                fetch('/api/send-sms', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    phoneNumber: phoneNumber.trim(),
+                    orderNumber: orderNumber,
+                    location: cart.location,
+                    itemCount: cart.items.length,
+                    placedBy: user.fullName,
+                    orderItems: cart.items.map(item => ({
+                      name: item.item.namePersian || item.item.name,
+                      quantity: item.quantity
+                    }))
+                  })
+                }).then(() => {
+                  console.log(`SMS notification sent successfully to ${phoneNumber}`);
+                }).catch((smsError) => {
+                  console.error(`Failed to send SMS notification to ${phoneNumber}:`, smsError);
+                });
+              }
             });
+          } else {
+            console.log('SMS notifications are disabled or no phone numbers configured');
           }
-        });
-      } else {
-        console.log('SMS notifications are disabled or no phone numbers configured');
+        } else {
+          console.log('No SMS settings found in database');
+        }
+      } catch (smsError) {
+        console.error('Failed to load SMS settings:', smsError);
       }
     } catch (error) {
       console.error('Error placing order:', error);
