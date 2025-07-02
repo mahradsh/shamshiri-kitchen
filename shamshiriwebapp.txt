@@ -1,0 +1,138 @@
+Shamshiri Kitchen Web-app Rules for Cursor
+------------------------------------------
+
+🧱 Technical Preferences:
+Frontend: React (Next.js) + Tailwind CSS
+
+Backend: Node.js or Next.js API routes
+
+Auth: Firebase Auth
+
+Data: Firebase Database
+
+Persian text support required
+
+PWA-style experience (hide URL, full-screen-like feel)
+
+Mobile responsive
+
+Shamshiri Web App (with Persian Item List)
+I want to create a web app for Shamshiri Restaurant so that each branch (North York and Thornhill) can order their daily products from the head office.
+🔐 Login Page:
+•	A simple login screen titled: "Welcome! Please login"
+•	Two input fields: Email and Password
+•	Login button
+•	Users have two roles: Admin and Staff
+•	After login, redirect based on role:
+o	Admin → Admin Panel
+o	Staff → Ordering Panel
+________________________________________
+👤 Admin Panel
+After logging in, the Admin can:
+1. Manage Items
+•	Add new items (in Persian)
+•	Edit/delete existing items
+•	Sort by item display order
+•	Assign each item to: North York, Thornhill, or Both
+•	All item properties are editable after creation
+2. Manage Orders
+•	View order list with:
+o	Order number
+o	Order date (for which day)
+o	Location
+o	Placed by (staff user)
+o	Items ordered
+o	Optional staff note
+•	Admin can void orders
+•	Filters by date, location, or user
+3. Manage Users
+•	Add/edit users with:
+o	Full name
+o	Email
+o	Password
+o	Phone number
+o	Assigned role: Admin or Staff
+o	Assigned location(s): North York, Thornhill, or Both
+•	Ability to deactivate or delete users
+4. Settings
+•	Toggle notification settings for:
+o	Email
+o	SMS
+o	Push Notifications
+5. Logout Button
+________________________________________
+👨‍🍳 Staff Flow
+After login:
+•	If assigned to both locations → ask them to choose one
+•	If assigned to one location → go directly to calendar
+1. Calendar Page
+•	Select the day to order for
+•	Button: Continue
+2. Item List Page
+•	Display items assigned to the location
+•	Each item has:
+o	A “+” and “–” button to adjust quantity
+o	Manual quantity input
+•	Buttons: Back, Cancel, Continue
+3. Checkout Page
+•	Show:
+o	Order date
+o	Location
+o	List of selected items and quantity
+o	Optional note field
+•	Buttons: Back, Cancel, Place Order
+4. Order Notification
+•	When an order is placed:
+o	Admins of the selected location get:
+	Email (if enabled)
+	SMS (if enabled)
+	Push notification (if enabled)
+•	If order is voided, staff who placed it gets:
+o	Email + SMS (if enabled)
+________________________________________
+🔔 Notification Integration Info
+Twilio SMS:
+•	Local Number: +1 416-578-4000
+•	Account SID: AC48b87abefaa08515d6d84e9184491a71
+•	Auth Token: 428e047f89ee6a15b59d8864458497b8
+________________________________________
+📋 Initial List of Items (in Persian):
+CopyEdit
+آش  
+اسفناج  
+بادمجان  
+بادمجان کبابی  
+برنج سفید  
+تن پرورده  
+جوجه ران  
+جوجه سینه  
+چلوگوشت  
+خوراک تره  
+دوغ  
+زردچوبه  
+زرشک  
+سبزی خوردن  
+سس سالاد  
+سوپ  
+غذا  
+فسنجون  
+قرمه سبزی  
+کشک  
+کشمش  
+کوفته  
+گردن  
+گردوی خرد شده  
+گوشت کوبیده  
+ماست  
+ماست اسفناج  
+ماست خیار  
+ماست موسیر  
+ماهی  
+همبرگر  
+________________________________________
+🎨 Design Guidelines:
+•	Primary color: #b32127
+•	App should look modern, clean, and touch-friendly
+•	Use Persian-compatible fonts
+•	App should open as a web app without showing URL (PWA-style)
+•	Include Logout button for both admin and staff

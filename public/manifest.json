@@ -1,0 +1,21 @@
+{
+  "name": "Shamshiri Kitchen - سفارشات آشپزخانه شمشیری",
+  "short_name": "Shamshiri Kitchen",
+  "description": "سیستم سفارشات آشپزخانه شمشیری",
+  "theme_color": "#b32127",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["business", "productivity"]
+} 
