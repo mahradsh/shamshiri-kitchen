@@ -264,7 +264,13 @@ export default function StaffDashboard() {
                             Order #{order.orderNumber}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {order.location} • {formatDate(order.orderDate)} ({order.createdAt?.toDate?.()?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || 'N/A'})
+                            <span className="font-medium text-blue-700">Delivery Date:</span> {formatDate(order.orderDate)}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium text-green-700">Order Placed:</span> {order.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'} at {order.createdAt?.toDate?.()?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || 'N/A'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium text-gray-800">Location:</span> {order.location}
                           </p>
                         </div>
                         <div className="flex flex-col items-end space-y-2">

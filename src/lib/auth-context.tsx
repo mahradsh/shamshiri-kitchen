@@ -3,12 +3,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   signInWithEmailAndPassword, 
+  signInWithPopup,
   signOut, 
   onAuthStateChanged,
   User as FirebaseUser 
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { auth, db, googleProvider } from './firebase';
 import { User, AuthContextType } from '@/types';
 import { seedItems } from './seed-data';
 
@@ -51,7 +52,7 @@ const createAdminUser = async (firebaseUser: FirebaseUser) => {
 // Auto-create staff user document if it doesn't exist
 const createStaffUser = async (firebaseUser: FirebaseUser) => {
   const userData = {
-    fullName: "Staff User",
+    fullName: firebaseUser.displayName || "Staff User",
     phoneNumber: "",
     role: "Staff",
     assignedLocations: ["Both"],
@@ -86,11 +87,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else if (firebaseUser.email === 'staff@shamshiri.com') {
             userData = await createStaffUser(firebaseUser);
           } else {
-            console.error('User document not found and not recognized user');
-            await signOut(auth);
-            setUser(null);
-            setLoading(false);
-            return;
+            // For Google Sign-in users, create as staff by default
+            userData = await createStaffUser(firebaseUser);
           }
         }
 
@@ -118,7 +116,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      console.error('Login error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Login error:', error);
+      }
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Google login error:', error);
+      }
       throw error;
     }
   };
@@ -127,7 +138,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signOut(auth);
     } catch (error) {
-      console.error('Logout error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Logout error:', error);
+      }
       throw error;
     }
   };
@@ -141,6 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     loading,
     login,
+    loginWithGoogle,
     logout,
     signup,
   };

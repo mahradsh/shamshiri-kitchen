@@ -84,48 +84,103 @@ export default function CheckoutPage() {
       localStorage.removeItem('orderCart');
       router.push('/staff?success=order-placed&tab=my-orders');
       
-      // Send SMS notification to admin async (fire and forget)
+      // Send notifications to admin async (fire and forget)
       try {
         const settingsQuery = query(collection(db, 'settings'), limit(1));
         const settingsDoc = await getDocs(settingsQuery);
         
         if (!settingsDoc.empty) {
-          const smsSettings = settingsDoc.docs[0].data();
-          if (smsSettings.enabled && (smsSettings.phoneNumbers && smsSettings.phoneNumbers.length > 0)) {
-            // Send SMS to all configured numbers without waiting
-            smsSettings.phoneNumbers.forEach((phoneNumber: string) => {
-              if (phoneNumber.trim()) {
-                fetch('/api/send-sms', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    phoneNumber: phoneNumber.trim(),
-                    orderNumber: orderNumber,
-                    location: cart.location,
-                    itemCount: cart.items.length,
-                    placedBy: user.fullName,
-                    orderItems: cart.items.map(item => ({
-                      name: item.item.namePersian || item.item.name,
-                      quantity: item.quantity
-                    }))
-                  })
-                }).then(() => {
-                  console.log(`SMS notification sent successfully to ${phoneNumber}`);
-                }).catch((smsError) => {
-                  console.error(`Failed to send SMS notification to ${phoneNumber}:`, smsError);
-                });
-              }
-            });
-          } else {
-            console.log('SMS notifications are disabled or no phone numbers configured');
+          const settings = settingsDoc.docs[0].data();
+          console.log('Loaded notification settings:', settings);
+          
+          // Send both SMS and email notifications
+          const notificationData = {
+            orderNumber: orderNumber,
+            deliveryDate: cart.date,
+            location: user.locationName,
+            placedBy: user.name,
+            items: cart.items.map(item => `${item.item.name} (${item.quantity})`).join(', '),
+            notes: note || 'No notes provided',
+            orderPlacedDate: new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+          };
+
+          // Send SMS notifications
+          if (settings.smsEnabled && settings.phoneNumbers.length > 0) {
+            try {
+              await fetch('/api/send-sms', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(notificationData),
+              });
+            } catch (error) {
+              console.error('SMS notification failed:', error);
+            }
+          }
+
+          // Send email notifications using Firebase Extension
+          if (settings.emailEnabled && settings.emailAddresses.length > 0) {
+            try {
+              // Create email document for Firebase Extension
+              const emailData = {
+                to: settings.emailAddresses,
+                message: {
+                  subject: `🍽️ New Order #${orderNumber} - ${user.locationName}`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                      <h2 style="color: #b32127; text-align: center; margin-bottom: 30px;">
+                        🍽️ New Order Notification
+                      </h2>
+                      
+                      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="color: #333; margin-top: 0;">Order Details</h3>
+                        <p><strong>Order Number:</strong> ${orderNumber}</p>
+                        <p><strong>Delivery Date:</strong> ${cart.date}</p>
+                        <p><strong>Location:</strong> ${user.locationName}</p>
+                        <p><strong>Placed By:</strong> ${user.name}</p>
+                        <p><strong>Order Placed:</strong> ${notificationData.orderPlacedDate}</p>
+                      </div>
+                      
+                      <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="color: #333; margin-top: 0;">Items Ordered</h3>
+                        <ul style="padding-left: 20px;">
+                          ${cart.items.map(item => `<li>${item.item.name} - Quantity: ${item.quantity}</li>`).join('')}
+                        </ul>
+                      </div>
+                      
+                      ${note ? `
+                        <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                          <h3 style="color: #333; margin-top: 0;">Staff Notes</h3>
+                          <p style="margin: 0;">${note}</p>
+                        </div>
+                      ` : ''}
+                      
+                      <div style="text-align: center; margin-top: 30px; color: #666;">
+                        <p>This is an automated notification from Shamshiri Kitchen ordering system.</p>
+                      </div>
+                    </div>
+                  `
+                }
+              };
+
+              // Add to Firestore 'mail' collection - Firebase Extension will handle sending
+              await addDoc(collection(db, 'mail'), emailData);
+              
+            } catch (error) {
+              console.error('Email notification failed:', error);
+            }
           }
         } else {
-          console.log('No SMS settings found in database');
+          console.log('No notification settings found in database');
         }
-      } catch (smsError) {
-        console.error('Failed to load SMS settings:', smsError);
+      } catch (notificationError) {
+        console.error('Failed to load notification settings:', notificationError);
       }
     } catch (error) {
       console.error('Error placing order:', error);
@@ -181,7 +236,7 @@ export default function CheckoutPage() {
             
             <div className="flex justify-between">
               <span className="font-medium text-gray-900">Ordered by:</span>
-              <span className="text-gray-600">Staff User</span>
+              <span className="text-gray-600">{user?.fullName || 'Staff User'}</span>
             </div>
           </div>
 
