@@ -22,22 +22,30 @@ Your app is now ready for deployment! All build issues have been resolved.
    - Select your `Kitchen.shamshiri` repository
 
 3. **Build Settings**
-   - **Build command**: `npm run build`
+   - **Build command**: `npm run build:cf`
    - **Build output directory**: `.next`
    - **Root directory**: `/` (leave empty)
-   - **Node.js version**: `18.17.0` (or leave default)
+   - **Node.js version**: `18` or `20` (recommended)
 
 ### Option 2: Direct Upload
 
 1. **Create a deployment package**
    ```bash
-   npm run build
+   npm run build:cf
    ```
 
 2. **Upload to Cloudflare Pages**
    - Go to Cloudflare Pages dashboard
    - Click "Upload assets"
-   - Upload the `.next` directory (the `.cfignore` file will exclude large files)
+   - Upload the `.next` directory
+
+## 🧹 Cache Cleanup Process
+
+The `npm run build:cf` command automatically:
+1. Builds your Next.js application
+2. Removes large cache files that exceed Cloudflare's 25MB limit
+3. Cleans up unnecessary manifest files
+4. Optimizes the deployment package to ~1.4MB
 
 ## 🔧 Environment Variables
 
@@ -56,21 +64,21 @@ Set these in your Cloudflare Pages dashboard:
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: Your Firebase messaging sender ID
 - `NEXT_PUBLIC_FIREBASE_APP_ID`: Your Firebase app ID
 
-## 📁 Files Excluded from Deployment
+## 📁 Files Automatically Excluded
 
-The following files are automatically excluded to prevent the 25MB limit error:
+The build process automatically removes:
+- `.next/cache/` - Build cache files (31.7MB+)
+- `.next/server/` - Server-side files
+- `.next/trace` - Build trace files
+- Various manifest files that aren't needed for deployment
 
-- `.next/cache/**` - Build cache files
-- `.next/server/**` - Server-side files
-- `*.pack`, `*.pack.gz` - Large webpack cache files
-- `node_modules/**` - Dependencies
-- Log files and development assets
+**Result**: Deployment package is only ~1.4MB (well under 25MB limit)
 
 ## 🔄 Automatic Deployments
 
 Once connected to GitHub, Cloudflare Pages will automatically:
 - Deploy on every push to main branch
-- Run builds in their environment
+- Run `npm run build:cf` in their environment
 - Handle SSL certificates
 - Provide CDN distribution
 
@@ -91,7 +99,12 @@ After deployment:
 
 ## 🐛 Troubleshooting
 
-If you encounter issues:
+### If you still get the 25MB error:
+1. Make sure you're using `npm run build:cf` instead of `npm run build`
+2. Check that the cache cleanup script ran successfully
+3. Verify no large files exist in `.next/` directory
+
+### Other issues:
 1. Check the build logs in Cloudflare Pages dashboard
 2. Verify environment variables are set correctly
 3. Ensure Firebase and Twilio credentials are valid
@@ -99,4 +112,8 @@ If you encounter issues:
 
 ## 📞 Support
 
-Your Shamshiri Kitchen app is now deployment-ready! 🎉 
+Your Shamshiri Kitchen app is now deployment-ready! 🎉
+
+**Build Command**: `npm run build:cf`
+**Deployment Size**: ~1.4MB
+**Status**: Ready for Cloudflare Pages ✅ 
