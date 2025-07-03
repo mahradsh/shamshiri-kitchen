@@ -1,0 +1,57 @@
+# Cloudflare Pages ignore file
+# Exclude cache and large development files
+
+# Next.js cache and large files
+.next/cache/**
+.next/server/**
+*.pack
+*.pack.gz
+*.pack.old
+.next/trace
+.next/build-manifest.json
+.next/export-marker.json
+.next/images-manifest.json
+.next/prerender-manifest.json
+.next/routes-manifest.json
+.next/react-loadable-manifest.json
+
+# Dependencies
+node_modules/**
+
+# Environment files
+.env*
+!.env.example
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Development files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build cache
+.turbo/
+.eslintcache
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini 

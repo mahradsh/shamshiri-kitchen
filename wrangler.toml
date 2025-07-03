@@ -1,0 +1,29 @@
+name = "shamshiri-kitchen"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+[build.upload]
+format = "service-worker"
+dir = ".next"
+exclude = [
+  ".next/cache/**",
+  ".next/server/**",
+  "node_modules/**",
+  "*.pack",
+  "*.pack.gz",
+  "*.pack.old",
+  ".next/trace",
+  ".next/build-manifest.json",
+  ".next/export-marker.json",
+  ".next/images-manifest.json",
+  ".next/prerender-manifest.json",
+  ".next/routes-manifest.json",
+  ".next/react-loadable-manifest.json"
+]
+
+[[pages]]
+functions = ".next/server/chunks/*.js" 

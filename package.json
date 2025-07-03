@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cf": "next build && npx @cloudflare/next-on-pages",
     "start": "next start",
     "lint": "next lint"
   },
@@ -22,6 +23,7 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.12",
     "@types/minimatch": "^5.1.0",
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.48",
