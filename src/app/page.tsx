@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '../lib/auth-context';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -73,10 +74,12 @@ export default function LoginPage() {
         >
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mx-auto mb-6">
-              <img 
+              <Image 
                 src="/shamshiri.jpg" 
                 alt="Shamshiri Restaurant Logo" 
-                className="w-24 h-24 rounded-full shadow-lg object-cover border-4"
+                width={96}
+                height={96}
+                className="rounded-full shadow-lg object-cover border-4"
                 style={{ borderColor: '#b32127' }}
               />
             </div>

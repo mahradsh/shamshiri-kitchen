@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '../../lib/auth-context';
 import { 
   collection, 
   getDocs, 
@@ -14,9 +14,10 @@ import {
   updateDoc,
   limit 
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { Item, Order } from '@/types';
+import { db } from '../../lib/firebase';
+import { Item, Order } from '../../types';
 import { Trash2, Edit } from 'lucide-react';
+import Image from 'next/image';
 
 type ActiveTab = 'items' | 'orders' | 'users';
 
@@ -621,10 +622,12 @@ export default function AdminPanel() {
           {/* Header */}
           <div className="p-4 sm:p-6 border-b border-gray-200">
             <div className="flex items-center justify-center mb-4">
-              <img 
+              <Image 
                 src="/shamshiri.jpg" 
                 alt="Shamshiri Restaurant Logo" 
-                className="w-16 h-16 rounded-full shadow-md object-cover border-2"
+                width={64}
+                height={64}
+                className="rounded-full shadow-md object-cover border-2"
                 style={{ borderColor: '#b32127' }}
               />
             </div>

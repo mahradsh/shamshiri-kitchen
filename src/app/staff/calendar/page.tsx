@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '../../../lib/auth-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 export default function CalendarPage() {
   const { user } = useAuth();
@@ -104,14 +105,16 @@ export default function CalendarPage() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="flex items-center justify-center py-4 px-4">
-          <img 
+          <Image 
             src="/shamshiri.jpg" 
             alt="Shamshiri Restaurant Logo" 
-            className="w-10 h-10 rounded-full shadow-sm object-cover border"
+            width={40}
+            height={40}
+            className="rounded-full shadow-sm object-cover border"
             style={{ borderColor: '#b32127' }}
           />
           <h1 className="ml-3 text-lg font-semibold text-red-600">
-            Shamshiri Ordering System
+            Select Date
           </h1>
         </div>
       </header>
