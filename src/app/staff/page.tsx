@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '../../lib/auth-context';
 import { collection, getDocs, query, where, orderBy, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { Location } from '@/types';
+import { db } from '../../lib/firebase';
+import { Location } from '../../types';
 import { MapPin, LogOut, ShoppingCart, Calendar, CheckCircle } from 'lucide-react';
+import Image from 'next/image';
 
 interface Order {
   id: string;
@@ -178,10 +179,12 @@ export default function StaffDashboard() {
             )}
             
             <div className="flex items-center justify-center mb-4">
-              <img 
+              <Image 
                 src="/shamshiri.jpg" 
                 alt="Shamshiri Restaurant Logo" 
-                className="w-16 h-16 rounded-full shadow-md object-cover border-2"
+                width={64}
+                height={64}
+                className="rounded-full shadow-md object-cover border-2"
                 style={{ borderColor: '#b32127' }}
               />
             </div>
@@ -321,7 +324,7 @@ export default function StaffDashboard() {
                   <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">No orders yet</p>
                   <p className="text-sm text-gray-400 mt-1">
-                    Place your first order using the "New Order" tab
+                    Place your first order using the &quot;New Order&quot; tab
                   </p>
                 </div>
               )}
