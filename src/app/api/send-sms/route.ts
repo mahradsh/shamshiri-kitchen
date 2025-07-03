@@ -6,12 +6,13 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER || '+14165784000';
 
-const client = twilio(accountSid, authToken);
+// Only initialize client if credentials are available
+const client = accountSid && authToken ? twilio(accountSid, authToken) : null;
 
 export async function POST(request: NextRequest) {
   try {
     // Validate environment variables
-    if (!accountSid || !authToken || !twilioNumber) {
+    if (!accountSid || !authToken || !twilioNumber || !client) {
       return NextResponse.json({ 
         error: 'SMS service configuration missing' 
       }, { status: 500 });

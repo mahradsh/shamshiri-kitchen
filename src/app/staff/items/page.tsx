@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../lib/auth-context';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -14,7 +14,7 @@ interface CartItem {
   quantity: number;
 }
 
-export default function ItemsPage() {
+function ItemsPageContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -226,5 +226,17 @@ export default function ItemsPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ItemsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="spinner"></div>
+      </div>
+    }>
+      <ItemsPageContent />
+    </Suspense>
   );
 } 

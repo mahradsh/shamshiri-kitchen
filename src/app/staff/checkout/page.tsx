@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../lib/auth-context';
 import { collection, addDoc, query, getDocs, limit } from 'firebase/firestore';
@@ -24,7 +24,7 @@ interface OrderCart {
   date: string;
 }
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -281,5 +281,17 @@ export default function CheckoutPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="spinner"></div>
+      </div>
+    }>
+      <CheckoutPageContent />
+    </Suspense>
   );
 } 

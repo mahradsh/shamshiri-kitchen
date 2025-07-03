@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../lib/auth-context';
 import { collection, getDocs, query, where, orderBy, deleteDoc, doc } from 'firebase/firestore';
@@ -28,7 +28,7 @@ interface Order {
   updatedAt: any;
 }
 
-export default function StaffDashboard() {
+function StaffDashboardContent() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -343,5 +343,17 @@ export default function StaffDashboard() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function StaffDashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="spinner"></div>
+      </div>
+    }>
+      <StaffDashboardContent />
+    </Suspense>
   );
 } 
