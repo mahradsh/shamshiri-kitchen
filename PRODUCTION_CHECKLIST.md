@@ -1,4 +1,4 @@
-# 🚀 Production Deployment Checklist
+# 🚀 Shamshiri Kitchen - Production Deployment Checklist
 
 ## ✅ Critical Security Fixes Applied
 
@@ -22,20 +22,20 @@
 
 ## 🔧 Environment Variables Required
 
-Create a `.env.local` file with these variables:
+Create a `.env.production` file with these values:
 
-```env
+```bash
 # Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=kitchen-shamshiri.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=kitchen-shamshiri
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=kitchen-shamshiri.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id_here
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 
 # Twilio Configuration
-TWILIO_ACCOUNT_SID=AC48b87abefaa08515d6d84e9184491a71
-TWILIO_AUTH_TOKEN=428e047f89ee6a15b59d8864458497b8
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=+14165784000
 
 # Email Service (Choose one)
@@ -44,7 +44,7 @@ SENDGRID_API_KEY=your_sendgrid_api_key
 SENDGRID_FROM_EMAIL=orders@shamshiri.com
 
 # Application
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+NEXT_PUBLIC_APP_URL=https://kitchen.shamshiriapps.ca
 NODE_ENV=production
 ```
 
@@ -222,7 +222,7 @@ netlify deploy --prod
 - Next.js: https://nextjs.org/docs
 
 ### Account Information
-- Twilio Account: AC48b87abefaa08515d6d84e9184491a71
+- Twilio Account: [Contact admin for details]
 - Twilio Phone: +1 (416) 578-4000
 - Firebase Project: kitchen-shamshiri
 
