@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 
 // Use environment variables for security
-const accountSid = process.env.TWILIO_ACCOUNT_SID || 'AC48b87abefaa08515d6d84e9184491a71';
-const authToken = process.env.TWILIO_AUTH_TOKEN || '428e047f89ee6a15b59d8864458497b8';
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER || '+14165784000';
 
 const client = twilio(accountSid, authToken);

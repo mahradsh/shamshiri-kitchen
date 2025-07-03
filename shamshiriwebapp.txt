@@ -71,7 +71,7 @@ After login:
 2. Item List Page
 •	Display items assigned to the location
 •	Each item has:
-o	A “+” and “–” button to adjust quantity
+o	A "+" and "–" button to adjust quantity
 o	Manual quantity input
 •	Buttons: Back, Cancel, Continue
 3. Checkout Page
@@ -93,8 +93,8 @@ ________________________________________
 🔔 Notification Integration Info
 Twilio SMS:
 •	Local Number: +1 416-578-4000
-•	Account SID: AC48b87abefaa08515d6d84e9184491a71
-•	Auth Token: 428e047f89ee6a15b59d8864458497b8
+•	Account SID: [Configured in environment variables]
+•	Auth Token: [Configured in environment variables]
 ________________________________________
 📋 Initial List of Items (in Persian):
 CopyEdit
