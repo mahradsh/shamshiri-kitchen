@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:cf": "next build && npm run clean:cache",
+    "build:static": "next build",
     "clean:cache": "node scripts/clean-cache.js",
     "start": "next start",
     "lint": "next lint"
