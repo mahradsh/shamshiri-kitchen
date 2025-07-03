@@ -63,8 +63,8 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123def456
 
 # Twilio Configuration
-TWILIO_ACCOUNT_SID=AC48b87abefaa08515d6d84e9184491a71
-TWILIO_AUTH_TOKEN=428e047f89ee6a15b59d8864458497b8
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=+14165784000
 
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -149,10 +149,10 @@ The app comes with 31 pre-configured Persian food items:
 
 ## Twilio SMS Configuration
 
-The app uses Twilio for SMS notifications with the provided credentials:
+The app uses Twilio for SMS notifications. Configure your credentials in the environment variables:
 - **Phone Number**: +1 416-578-4000
-- **Account SID**: AC48b87abefaa08515d6d84e9184491a71
-- **Auth Token**: 428e047f89ee6a15b59d8864458497b8
+- **Account SID**: [Set in environment variables]
+- **Auth Token**: [Set in environment variables]
 
 ## Deployment
 
