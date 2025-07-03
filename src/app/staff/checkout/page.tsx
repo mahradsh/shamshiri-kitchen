@@ -100,8 +100,8 @@ export default function CheckoutPage() {
           const notificationData = {
             orderNumber: orderNumber,
             deliveryDate: cart.date,
-            location: user.locationName,
-            placedBy: user.name,
+            location: location!,
+            placedBy: user.fullName,
             items: cart.items.map(item => `${item.item.name} (${item.quantity})`).join(', '),
             notes: note || 'No notes provided',
             orderPlacedDate: new Date().toLocaleDateString('en-US', {
@@ -134,7 +134,7 @@ export default function CheckoutPage() {
               const emailData = {
                 to: settings.emailAddresses,
                 message: {
-                  subject: `🍽️ New Order #${orderNumber} - ${user.locationName}`,
+                  subject: `🍽️ New Order #${orderNumber} - ${location}`,
                   html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                       <h2 style="color: #b32127; text-align: center; margin-bottom: 30px;">
@@ -145,8 +145,8 @@ export default function CheckoutPage() {
                         <h3 style="color: #333; margin-top: 0;">Order Details</h3>
                         <p><strong>Order Number:</strong> ${orderNumber}</p>
                         <p><strong>Delivery Date:</strong> ${cart.date}</p>
-                        <p><strong>Location:</strong> ${user.locationName}</p>
-                        <p><strong>Placed By:</strong> ${user.name}</p>
+                        <p><strong>Location:</strong> ${location}</p>
+                        <p><strong>Placed By:</strong> ${user.fullName}</p>
                         <p><strong>Order Placed:</strong> ${notificationData.orderPlacedDate}</p>
                       </div>
                       

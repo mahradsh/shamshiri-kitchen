@@ -66,7 +66,7 @@ export default function StaffDashboard() {
     if (activeTab === 'my-orders' && user) {
       loadMyOrders();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Show success message
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function StaffDashboard() {
         router.replace('/staff', { scroll: false });
       }, 2000);
     }
-  }, [success, router]);
+  }, [success, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadMyOrders = async () => {
     if (!user) return;

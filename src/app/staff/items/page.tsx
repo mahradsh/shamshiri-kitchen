@@ -38,7 +38,7 @@ export default function ItemsPage() {
     }
 
     loadItems();
-  }, [user, location, date, router]);
+  }, [user, location, date, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadItems = async () => {
     try {
@@ -56,7 +56,7 @@ export default function ItemsPage() {
       // Filter items based on location
       const filteredItems = itemsData.filter(item => 
         item.assignedLocations.includes('Both') || 
-        item.assignedLocations.includes(location!)
+        item.assignedLocations.includes(location! as any)
       );
 
       setItems(filteredItems.sort((a, b) => a.displayOrder - b.displayOrder));

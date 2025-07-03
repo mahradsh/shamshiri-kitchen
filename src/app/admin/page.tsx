@@ -114,7 +114,7 @@ export default function AdminPanel() {
           setSmsEnabled(settings.enabled || false);
           
           // Migrate to Firebase
-          const validPhoneNumbers = (settings.phoneNumbers || [settings.phoneNumber]).filter(num => num && num.trim());
+          const validPhoneNumbers = (settings.phoneNumbers || [settings.phoneNumber]).filter((num: string) => num && num.trim());
           if (validPhoneNumbers.length > 0 || settings.enabled) {
             await addDoc(collection(db, 'settings'), {
               phoneNumbers: validPhoneNumbers,
@@ -364,23 +364,23 @@ export default function AdminPanel() {
                       Order #{order.orderNumber}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium text-blue-700">Delivery Date:</span> {order.orderDate?.toDate?.()?.toLocaleDateString() || 'N/A'}
+                      <span className="font-medium text-blue-700">Delivery Date:</span> {(order.orderDate as any)?.toDate?.()?.toLocaleDateString() || 'N/A'}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium text-green-700">Order Placed:</span> {order.createdAt?.toDate?.()?.toLocaleDateString() || 'N/A'} at {order.createdAt?.toDate?.()?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || 'N/A'}
+                      <span className="font-medium text-green-700">Order Placed:</span> {(order.createdAt as any)?.toDate?.()?.toLocaleDateString() || 'N/A'} at {(order.createdAt as any)?.toDate?.()?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) || 'N/A'}
                     </p>
                     <p className="text-sm text-gray-600">
                       <span className="font-medium text-gray-800">Location:</span> {order.location} • <span className="font-medium text-gray-800">By:</span> {order.placedByName}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                      order.status === 'Active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : order.status === 'Complete'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                                          <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                        order.status === 'Active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : (order.status as string) === 'Complete'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
                       {order.status}
                     </span>
                     {order.status === 'Active' && (
