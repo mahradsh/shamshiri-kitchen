@@ -13,19 +13,12 @@ function removeDir(dir) {
 
 console.log('🧹 Cleaning cache files for Cloudflare Pages deployment...');
 
-// Remove cache directories
+// Remove ONLY the large cache directories that cause 25MB limit issues
 removeDir('.next/cache');
-removeDir('.next/server');
 
-// Remove specific files
+// Remove trace file if it exists
 const filesToRemove = [
-  '.next/trace',
-  '.next/build-manifest.json',
-  '.next/export-marker.json',
-  '.next/images-manifest.json',
-  '.next/prerender-manifest.json',
-  '.next/routes-manifest.json',
-  '.next/react-loadable-manifest.json'
+  '.next/trace'
 ];
 
 filesToRemove.forEach(file => {
@@ -36,4 +29,5 @@ filesToRemove.forEach(file => {
   }
 });
 
-console.log('✅ Cache cleanup completed!'); 
+console.log('✅ Cache cleanup completed!');
+console.log('📝 Keeping essential manifest files for Next.js routing'); 
