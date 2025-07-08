@@ -10,7 +10,7 @@ const db = getFirestore();
 
 // Twilio configuration
 const TWILIO_ACCOUNT_SID = "AC48b87abefaa08515d6d84e9184491a71";
-const TWILIO_AUTH_TOKEN = "428e047f89ee6a15b59d8864458497b8";
+const TWILIO_AUTH_TOKEN = "91dd23b5c7830ecdc519dd1c973c2471";
 const TWILIO_PHONE_NUMBER = "+14165784000";
 
 /**
@@ -250,12 +250,12 @@ Shamshiri Kitchen Management System`,
 
         // Create email document for Firebase Extension to process
         await db.collection("mail").add(emailData);
-        const orderNum = orderData.orderNumber;
-        logger.info(`Email document created for order ${orderNum}`);
+        logger.info(`Email document created for order ${orderData.orderNumber}`);
       }
 
-      const orderNum = orderData.orderNumber;
-      logger.info(`Successfully processed notifications for order ${orderNum}`);
+      logger.info(
+        `Successfully processed notifications for order ${orderData.orderNumber}`
+      );
     } catch (error) {
       logger.error("Error processing new order:", error);
     }

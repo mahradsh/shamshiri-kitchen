@@ -33,15 +33,9 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=kitchen-shamshiri.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 
-# Twilio Configuration
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=+14165784000
 
 # Email Service (Choose one)
-# SendGrid
-SENDGRID_API_KEY=your_sendgrid_api_key
-SENDGRID_FROM_EMAIL=orders@shamshiri.com
+
 
 # Application
 NEXT_PUBLIC_APP_URL=https://kitchen.shamshiriapps.ca

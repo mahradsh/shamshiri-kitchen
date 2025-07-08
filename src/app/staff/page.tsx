@@ -33,7 +33,7 @@ function StaffDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'new-order' | 'my-orders'>('new-order');
+  const [activeTab, setActiveTab] = useState<'new-order' | 'all-orders'>('new-order');
   const [myOrders, setMyOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
@@ -60,13 +60,13 @@ function StaffDashboardContent() {
 
   // Handle tab parameter from URL
   useEffect(() => {
-    if (tabParam === 'my-orders') {
-      setActiveTab('my-orders');
+    if (tabParam === 'all-orders') {
+      setActiveTab('all-orders');
     }
   }, [tabParam]);
 
   useEffect(() => {
-    if (activeTab === 'my-orders' && user) {
+    if (activeTab === 'all-orders' && user) {
       loadMyOrders();
     }
   }, [activeTab, user]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -104,11 +104,10 @@ function StaffDashboardContent() {
       
       console.log('All orders:', allOrders);
       
-      // Filter orders for this user
-      const userOrders = allOrders.filter(order => order.placedBy === user.id);
-      console.log('User orders:', userOrders);
+      // Show all orders to all staff (no filtering by user)
+      console.log('All orders for staff view:', allOrders);
       
-      setMyOrders(userOrders);
+      setMyOrders(allOrders);
     } catch (error) {
       console.error('Error loading orders:', error);
     } finally {
@@ -212,14 +211,14 @@ function StaffDashboardContent() {
                 New Order
               </button>
               <button
-                onClick={() => setActiveTab('my-orders')}
+                onClick={() => setActiveTab('all-orders')}
                 className={`flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === 'my-orders'
+                  activeTab === 'all-orders'
                     ? 'border-red-500 text-red-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                My Orders
+                All Orders
               </button>
             </div>
           </div>
@@ -257,7 +256,7 @@ function StaffDashboardContent() {
           ) : (
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                My Orders
+                All Orders
               </h2>
               
               {ordersLoading ? (
@@ -281,6 +280,9 @@ function StaffDashboardContent() {
                           </p>
                           <p className="text-sm text-gray-600">
                             <span className="font-medium text-gray-800">Location:</span> {order.location}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium text-purple-700">Placed by:</span> {order.placedByName || 'Unknown'}
                           </p>
                         </div>
                         <div className="flex flex-col items-end space-y-2">
@@ -325,7 +327,7 @@ function StaffDashboardContent() {
                   <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">No orders yet</p>
                   <p className="text-sm text-gray-400 mt-1">
-                    Place your first order using the &quot;New Order&quot; tab
+                    No orders have been placed yet
                   </p>
                 </div>
               )}
