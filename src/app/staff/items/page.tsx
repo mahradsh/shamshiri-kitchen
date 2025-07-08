@@ -15,7 +15,7 @@ interface CartItem {
 }
 
 function ItemsPageContent() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const location = searchParams.get('location');
@@ -27,6 +27,9 @@ function ItemsPageContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for auth to load before making redirect decisions
+    if (authLoading) return;
+    
     if (!user || user.role !== 'Staff') {
       router.push('/');
       return;
@@ -38,7 +41,7 @@ function ItemsPageContent() {
     }
 
     loadItems();
-  }, [user, location, date, router]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, location, date, router, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadItems = async () => {
     try {

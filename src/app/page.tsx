@@ -14,19 +14,19 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login, loginWithGoogle, user } = useAuth();
+  const { login, loginWithGoogle, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect if already logged in
-    if (user) {
+    // Only redirect if auth is loaded and user exists
+    if (!authLoading && user) {
       if (user.role === 'Admin') {
         router.push('/admin');
       } else {
         router.push('/staff');
       }
     }
-  }, [user, router]);
+  }, [user, router, authLoading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

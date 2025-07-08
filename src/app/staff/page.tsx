@@ -29,7 +29,7 @@ interface Order {
 }
 
 function StaffDashboardContent() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -42,6 +42,9 @@ function StaffDashboardContent() {
   const tabParam = searchParams.get('tab');
 
   useEffect(() => {
+    // Wait for auth to load before making redirect decisions
+    if (authLoading) return;
+    
     if (!user) {
       router.push('/');
       return;
@@ -53,7 +56,7 @@ function StaffDashboardContent() {
     }
     
     setLoading(false);
-  }, [user, router]);
+  }, [user, router, authLoading]);
 
   // Handle tab parameter from URL
   useEffect(() => {

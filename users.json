@@ -1,0 +1,41 @@
+{"users": [
+{
+  "localId": "MeCh5XHS46WIHEuDhZXVYrryUit1",
+  "email": "themahradsh@gmail.com",
+  "emailVerified": true,
+  "displayName": "Mahrad",
+  "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocLp3BdpSxzWhNSnCGsIT0AGxQiaJLI_lnSqd9lX7HzxfUGMQwR0=s96-c",
+  "lastSignedInAt": "1751555465979",
+  "createdAt": "1751553756417",
+  "providerUserInfo": [
+    {
+      "providerId": "google.com",
+      "rawId": "101884390700710456924",
+      "email": "themahradsh@gmail.com",
+      "displayName": "Mahrad",
+      "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocLp3BdpSxzWhNSnCGsIT0AGxQiaJLI_lnSqd9lX7HzxfUGMQwR0=s96-c"
+    }
+  ]
+},
+{
+  "localId": "Mw1QeRaFpdQL6CIf43MZtVlQM2w1",
+  "email": "staff@shamshiri.com",
+  "emailVerified": false,
+  "passwordHash": "hecShrB2Zwn6nXFf0y6Qs4raUU+qlygfuX1IWlULcrcBoFfvNPM9BSzhqSkRYsxHhjYalg0Kmep705b8MzCsmw==",
+  "salt": "wvYsLvj1lMAXWA==",
+  "lastSignedInAt": "1751499781807",
+  "createdAt": "1751495117379",
+  "disabled": false,
+  "providerUserInfo": []
+},
+{
+  "localId": "mk0kxTG5ymYvHkeNHZRnahfxWVG3",
+  "email": "admin@shamshiri.com",
+  "emailVerified": false,
+  "passwordHash": "tlWEXr+CaNrm28AGACtEZOiDC7FV46JsJ1lxMCYxF1wOEw/1aDA2JZJZKzYxPSdKQhqjcMnm1loxBvp96ZHGIQ==",
+  "salt": "eZGeT/4OyhCoGA==",
+  "lastSignedInAt": "1751658384409",
+  "createdAt": "1751554865083",
+  "disabled": false,
+  "providerUserInfo": []
+}]}

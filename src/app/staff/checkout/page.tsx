@@ -25,7 +25,7 @@ interface OrderCart {
 }
 
 function CheckoutPageContent() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const location = searchParams.get('location');
@@ -36,6 +36,9 @@ function CheckoutPageContent() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Wait for auth to load before making redirect decisions
+    if (authLoading) return;
+    
     if (!user || user.role !== 'Staff') {
       router.push('/');
       return;
@@ -53,7 +56,7 @@ function CheckoutPageContent() {
     } else {
       router.push('/staff');
     }
-  }, [user, location, date, router]);
+  }, [user, location, date, router, authLoading]);
 
   const handlePlaceOrder = async () => {
     if (!cart || !user) return;
@@ -114,17 +117,58 @@ function CheckoutPageContent() {
 
           // Send SMS notifications
           if (settings.smsEnabled && settings.phoneNumbers.length > 0) {
+            console.log('SMS enabled, sending to phone numbers:', settings.phoneNumbers);
             try {
-              await fetch('/api/send-sms', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(notificationData),
+              // Send SMS to each admin phone number
+              const smsPromises = settings.phoneNumbers.map(async (phoneNumber: string) => {
+                if (!phoneNumber.trim()) {
+                  console.log('Skipping empty phone number');
+                  return;
+                }
+                
+                const smsData = {
+                  ...notificationData,
+                  phoneNumber: phoneNumber.trim(),
+                  orderItems: cart.items.map(item => ({
+                    name: item.item.name,
+                    quantity: item.quantity
+                  })),
+                  staffNote: note || 'No notes provided'
+                };
+                
+                console.log('Sending SMS to:', phoneNumber, 'with data:', {
+                  orderNumber: smsData.orderNumber,
+                  location: smsData.location,
+                  itemCount: smsData.orderItems.length
+                });
+                
+                const response = await fetch('/api/send-sms', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(smsData),
+                });
+                
+                if (!response.ok) {
+                  const error = await response.json();
+                  console.error('SMS failed for', phoneNumber, 'Error:', error);
+                } else {
+                  const result = await response.json();
+                  console.log('SMS sent successfully to', phoneNumber, 'Result:', result);
+                }
               });
+              
+              await Promise.all(smsPromises);
+              console.log('All SMS sending attempts completed');
             } catch (error) {
               console.error('SMS notification failed:', error);
             }
+          } else {
+            console.log('SMS not enabled or no phone numbers configured:', {
+              smsEnabled: settings.smsEnabled,
+              phoneNumberCount: settings.phoneNumbers?.length || 0
+            });
           }
 
           // Send email notifications using Firebase Extension

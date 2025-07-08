@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 
 function CalendarPageContent() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const location = searchParams.get('location');
@@ -16,6 +16,9 @@ function CalendarPageContent() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
+    // Wait for auth to load before making redirect decisions
+    if (authLoading) return;
+    
     if (!user || user.role !== 'Staff') {
       router.push('/');
       return;
@@ -25,7 +28,7 @@ function CalendarPageContent() {
       router.push('/staff');
       return;
     }
-  }, [user, location, router]);
+  }, [user, location, router, authLoading]);
 
   const today = new Date();
   const currentMonth = currentDate.getMonth();

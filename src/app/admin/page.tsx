@@ -22,7 +22,7 @@ import Image from 'next/image';
 type ActiveTab = 'items' | 'orders' | 'users';
 
 export default function AdminPanel() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('items');
@@ -42,6 +42,9 @@ export default function AdminPanel() {
   const [emailEnabled, setEmailEnabled] = useState(false);
 
   useEffect(() => {
+    // Wait for auth to load before making redirect decisions
+    if (authLoading) return;
+    
     if (!user) {
       router.push('/');
       return;
@@ -56,7 +59,7 @@ export default function AdminPanel() {
     loadItems();
     loadOrders();
     loadNotificationSettings();
-  }, [user, router]);
+  }, [user, router, authLoading]);
 
   const loadItems = async () => {
     try {
