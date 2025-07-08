@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../lib/auth-context';
-import { collection, getDocs, query, where, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { Location } from '../../types';
 import { MapPin, LogOut, ShoppingCart, Calendar, CheckCircle } from 'lucide-react';
@@ -129,18 +129,7 @@ function StaffDashboardContent() {
     router.push(`/staff/calendar?location=${encodeURIComponent(location)}`);
   };
 
-  const handleVoidOrder = async (orderId: string, orderNumber: string) => {
-    if (confirm(`Are you sure you want to void Order #${orderNumber}? This action cannot be undone.`)) {
-      try {
-        await deleteDoc(doc(db, 'orders', orderId));
-        loadMyOrders(); // Reload orders
-        alert('Order voided successfully');
-      } catch (error) {
-        console.error('Error voiding order:', error);
-        alert('Failed to void order. Please try again.');
-      }
-    }
-  };
+
 
   const formatDate = (date: any) => {
     if (!date) return 'N/A';
@@ -161,9 +150,24 @@ function StaffDashboardContent() {
     );
   }
 
-  const availableLocations: Location[] = user?.assignedLocations.includes('Both') 
-    ? ['North York', 'Thornhill'] 
-    : user?.assignedLocations || [];
+  // Location access based on user email
+  const getAvailableLocations = (): Location[] => {
+    if (!user?.email) return [];
+    
+    switch (user.email) {
+      case 'northyork@shamshiri.com':
+        return ['North York'];
+      case 'thornhill@shamshiri.com':
+        return ['Thornhill'];
+      case 'manager@shamshiri.com':
+        return ['North York', 'Thornhill'];
+      default:
+        // Fallback for other accounts (including admin)
+        return ['North York', 'Thornhill'];
+    }
+  };
+
+  const availableLocations: Location[] = getAvailableLocations();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -289,12 +293,6 @@ function StaffDashboardContent() {
                           }`}>
                             {order.status}
                           </span>
-                          <button
-                            onClick={() => handleVoidOrder(order.id, order.orderNumber)}
-                            className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
-                          >
-                            Void Order
-                          </button>
                         </div>
                       </div>
                       

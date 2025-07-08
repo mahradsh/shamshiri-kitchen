@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../lib/auth-context';
-import { collection, addDoc, query, getDocs, limit } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { Item } from '../../../types';
 import { ArrowLeft, CheckCircle, Calendar, MapPin, ShoppingCart } from 'lucide-react';
@@ -84,151 +84,15 @@ function CheckoutPageContent() {
         updatedAt: new Date()
       };
 
+      // Create the order - Firebase Function will handle notifications automatically
       await addDoc(collection(db, 'orders'), orderData);
       
-      // Clear cart and redirect immediately
+      console.log(`Order ${orderNumber} created successfully. Firebase Function will handle notifications.`);
+      
+      // Clear cart and redirect
       localStorage.removeItem('orderCart');
       router.push('/staff?success=order-placed&tab=my-orders');
       
-      // Send notifications to admin async (fire and forget)
-      try {
-        const settingsQuery = query(collection(db, 'settings'), limit(1));
-        const settingsDoc = await getDocs(settingsQuery);
-        
-        if (!settingsDoc.empty) {
-          const settings = settingsDoc.docs[0].data();
-          console.log('Loaded notification settings:', settings);
-          
-          // Send both SMS and email notifications
-          const notificationData = {
-            orderNumber: orderNumber,
-            deliveryDate: cart.date,
-            location: location!,
-            placedBy: user.fullName,
-            items: cart.items.map(item => `${item.item.name} (${item.quantity})`).join(', '),
-            notes: note || 'No notes provided',
-            orderPlacedDate: new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })
-          };
-
-          // Send SMS notifications
-          if (settings.smsEnabled && settings.phoneNumbers.length > 0) {
-            console.log('SMS enabled, sending to phone numbers:', settings.phoneNumbers);
-            try {
-              // Send SMS to each admin phone number
-              const smsPromises = settings.phoneNumbers.map(async (phoneNumber: string) => {
-                if (!phoneNumber.trim()) {
-                  console.log('Skipping empty phone number');
-                  return;
-                }
-                
-                const smsData = {
-                  ...notificationData,
-                  phoneNumber: phoneNumber.trim(),
-                  orderItems: cart.items.map(item => ({
-                    name: item.item.name,
-                    quantity: item.quantity
-                  })),
-                  staffNote: note || 'No notes provided'
-                };
-                
-                console.log('Sending SMS to:', phoneNumber, 'with data:', {
-                  orderNumber: smsData.orderNumber,
-                  location: smsData.location,
-                  itemCount: smsData.orderItems.length
-                });
-                
-                const response = await fetch('/api/send-sms', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(smsData),
-                });
-                
-                if (!response.ok) {
-                  const error = await response.json();
-                  console.error('SMS failed for', phoneNumber, 'Error:', error);
-                } else {
-                  const result = await response.json();
-                  console.log('SMS sent successfully to', phoneNumber, 'Result:', result);
-                }
-              });
-              
-              await Promise.all(smsPromises);
-              console.log('All SMS sending attempts completed');
-            } catch (error) {
-              console.error('SMS notification failed:', error);
-            }
-          } else {
-            console.log('SMS not enabled or no phone numbers configured:', {
-              smsEnabled: settings.smsEnabled,
-              phoneNumberCount: settings.phoneNumbers?.length || 0
-            });
-          }
-
-          // Send email notifications using Firebase Extension
-          if (settings.emailEnabled && settings.emailAddresses.length > 0) {
-            try {
-              // Create email document for Firebase Extension
-              const emailData = {
-                to: settings.emailAddresses,
-                message: {
-                  subject: `🍽️ New Order #${orderNumber} - ${location}`,
-                  html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-                      <h2 style="color: #b32127; text-align: center; margin-bottom: 30px;">
-                        🍽️ New Order Notification
-                      </h2>
-                      
-                      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                        <h3 style="color: #333; margin-top: 0;">Order Details</h3>
-                        <p><strong>Order Number:</strong> ${orderNumber}</p>
-                        <p><strong>Delivery Date:</strong> ${cart.date}</p>
-                        <p><strong>Location:</strong> ${location}</p>
-                        <p><strong>Placed By:</strong> ${user.fullName}</p>
-                        <p><strong>Order Placed:</strong> ${notificationData.orderPlacedDate}</p>
-                      </div>
-                      
-                      <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
-                        <h3 style="color: #333; margin-top: 0;">Items Ordered</h3>
-                        <ul style="padding-left: 20px;">
-                          ${cart.items.map(item => `<li>${item.item.name} - Quantity: ${item.quantity}</li>`).join('')}
-                        </ul>
-                      </div>
-                      
-                      ${note ? `
-                        <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                          <h3 style="color: #333; margin-top: 0;">Staff Notes</h3>
-                          <p style="margin: 0;">${note}</p>
-                        </div>
-                      ` : ''}
-                      
-                      <div style="text-align: center; margin-top: 30px; color: #666;">
-                        <p>This is an automated notification from Shamshiri Kitchen ordering system.</p>
-                      </div>
-                    </div>
-                  `
-                }
-              };
-
-              // Add to Firestore 'mail' collection - Firebase Extension will handle sending
-              await addDoc(collection(db, 'mail'), emailData);
-              
-            } catch (error) {
-              console.error('Email notification failed:', error);
-            }
-          }
-        } else {
-          console.log('No notification settings found in database');
-        }
-      } catch (notificationError) {
-        console.error('Failed to load notification settings:', notificationError);
-      }
     } catch (error) {
       console.error('Error placing order:', error);
       alert('Failed to place order. Please try again.');

@@ -11,14 +11,9 @@
 
 1. **Go to Authentication** → **Sign-in method**
 2. **Enable Email/Password authentication**
-3. **Enable Google Sign-in for Staff**:
-   - Click on **Google** sign-in provider
-   - Toggle to **Enable**
-   - Set Project support email (use your email)
-   - Click **Save**
-4. **Click Save**
+3. **Click Save**
 
-### 3. Create Demo Users
+### 3. Create Users
 
 #### Admin User
 1. **Go to Authentication** → **Users**
@@ -28,11 +23,28 @@
    - Password: `admin123`
 4. **Click "Add user"**
 
-#### Staff User
-1. **Click "Add user" again**
+#### Staff Users
+Create these 3 staff accounts with the specified location access:
+
+**1. North York Staff (Can only order for North York)**
+1. **Click "Add user"**
 2. **Enter**:
-   - Email: `staff@shamshiri.com`
+   - Email: `northyork@shamshiri.com`
    - Password: `staff123`
+3. **Click "Add user"**
+
+**2. Thornhill Staff (Can only order for Thornhill)**  
+1. **Click "Add user"**
+2. **Enter**:
+   - Email: `thornhill@shamshiri.com`
+   - Password: `thornhill456`
+3. **Click "Add user"**
+
+**3. Store Manager (Can order for both stores)**
+1. **Click "Add user"**
+2. **Enter**:
+   - Email: `manager@shamshiri.com`
+   - Password: `manager789`
 3. **Click "Add user"**
 
 ### 4. Set Up Firestore Database
@@ -46,73 +58,59 @@
 ### 5. Update Security Rules
 
 1. **Go to Firestore Database** → **Rules**
-2. **Replace with**:
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Allow authenticated users to read/write
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
+2. **Replace with the contents from `firestore.rules` file**
 3. **Click "Publish"**
 
 ## 🎯 Testing the Application
 
-### Demo Credentials
+### Login Credentials
 
-| Role  | Email | Password |
-|-------|-------|----------|
-| Admin | admin@shamshiri.com | admin123 |
-| Staff | staff@shamshiri.com | staff123 |
+| Account Type | Email | Password | Access |
+|-------------|-------|----------|---------|
+| Admin | admin@shamshiri.com | admin123 | Full admin access |
+| North York Staff | northyork@shamshiri.com | staff123 | Only North York location & items |
+| Thornhill Staff | thornhill@shamshiri.com | thornhill456 | Only Thornhill location & items |
+| Store Manager | manager@shamshiri.com | manager789 | Both North York and Thornhill |
 
-### Staff Authentication Options
-1. **Email/Password Login** with staff credentials
-2. **Google Sign-in** (automatically creates staff account)
+### Staff Flow (All Accounts)
 
-### Staff Flow
-1. **Login** with staff credentials or Google
-2. **Select location** (North York or Thornhill)
-3. **Choose date** from calendar
-4. **Select items** with quantities
-5. **Review order summary**
-6. **Place order** (triggers both SMS and email notifications)
-
-### Admin Flow
-1. **Login** with admin credentials
-2. **Add Items tab**: Add new menu items and assign to locations
-3. **Orders tab**: View all placed orders with notes and delivery dates
-4. **Users tab**: Configure notification settings (up to 6 phone numbers and 6 emails)
+**All Staff Accounts:**
+- Login → Shows location picker (only allowed locations based on user email)
+- Select allowed location → Calendar → Items (filtered by location)
+- Place orders only for allowed locations with location-specific items
 
 ## ✅ What Happens Automatically
 
 When you log in:
 - **Admin account**: Creates admin user document + seeds all menu items
-- **Staff account**: Creates staff user document automatically
-- **Google Sign-in**: Creates staff user with Google display name
+- **Staff accounts**: Creates staff user documents with correct location assignments
 - **Collections**: Creates `users`, `items`, `orders`, and `settings` collections in Firestore
-- **Notification Settings**: Supports up to 6 phone numbers and 6 email addresses
 
 ## 🔧 Features Implemented
 
 ### Staff Interface
-- ✅ Clean location selection dashboard
+- ✅ Clean location selection dashboard  
 - ✅ Calendar for date selection
 - ✅ Item selection with search and quantity controls
 - ✅ Order summary with notes
 - ✅ Order placement with Firebase storage
-- ✅ Google Sign-in authentication
+- ✅ **Email/Password authentication only**
 
 ### Admin Interface  
 - ✅ Tabbed interface (Add Items, Orders, Users)
-- ✅ Add/delete items with location assignment
+- ✅ Add/edit/delete items with location assignment
 - ✅ View all orders in real-time with notes and delivery dates
+- ✅ Void orders (admin only)
 - ✅ User management information
 - ✅ Notification settings (up to 6 phone numbers and 6 emails)
-- ✅ Cross-device settings synchronization
+
+### Location Access
+- ✅ **North York Staff**: Can only order for North York location
+- ✅ **Thornhill Staff**: Can only order for Thornhill location
+- ✅ **Store Manager**: Can order for both North York and Thornhill locations
+- ✅ **Admin**: Full access to all locations and admin features
+- ✅ **Location Picker**: Shows only allowed locations based on user email
+- ✅ **Items**: Staff only see items assigned to their location + items marked as "Both"
 
 ### Notification System
 - ✅ SMS notifications with notes and delivery date
@@ -121,32 +119,29 @@ When you log in:
 - ✅ Async delivery for fast order placement
 
 ### Technical Features
-- ✅ Automatic user document creation
+- ✅ Automatic user document creation with location assignments
 - ✅ Firebase Firestore integration
-- ✅ Google Authentication integration
+- ✅ **Email/Password authentication only**
 - ✅ Real-time data loading
 - ✅ Responsive mobile-first design
-- ✅ Persian/Farsi language support with proper fonts
-- ✅ Twilio SMS integration for order notifications
-- ✅ Email notification system (ready for production email service)
-- ✅ Cross-device settings synchronization via Firebase
-- ✅ Enhanced notification content with notes and delivery dates
+- ✅ Admin-only order voiding
+- ✅ Item editing for admins
 
-## 🚀 Ready to Use!
+## 🚫 Removed Features
+- ❌ Google Sign-in authentication (removed completely)
+- ❌ Staff order voiding (now admin-only)
 
-1. **Complete Firebase setup** above
-2. **Run**: `npm run dev`
-3. **Visit**: http://localhost:3001
-4. **Login** with demo credentials or Google Sign-in
+## 📱 Staff Account Behavior
 
-Everything works automatically! 🎉 
+All staff accounts have the same access with good UX:
 
-## 📧 Email Integration Note
+- **Location Picker**: Shows only allowed locations based on user email
+- **Available Locations**: North York staff see only North York, Thornhill staff see only Thornhill, Manager sees both
+- **Item Access**: Staff only see items assigned to their location + items marked as "Both"
+- **Order Placement**: Staff can place orders for any location they choose
 
-For production, you'll need to integrate with an email service provider like:
-- **SendGrid**
-- **AWS SES** 
-- **Resend**
-- **Mailgun**
-
-The email API route is ready and will log emails in development mode. 
+This ensures that:
+1. All staff have flexibility to order for either location
+2. No restrictions based on staff member assignments
+3. Simplified management - all staff accounts work the same way
+4. UI remains consistent and user-friendly for all staff 

@@ -3,13 +3,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   signInWithEmailAndPassword, 
-  signInWithPopup,
   signOut, 
   onAuthStateChanged,
   User as FirebaseUser 
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider } from './firebase';
+import { auth, db } from './firebase';
 import { User, AuthContextType } from '@/types';
 import { seedItems } from './seed-data';
 
@@ -51,18 +50,61 @@ const createAdminUser = async (firebaseUser: FirebaseUser) => {
 
 // Auto-create staff user document if it doesn't exist
 const createStaffUser = async (firebaseUser: FirebaseUser) => {
-  const userData = {
-    fullName: firebaseUser.displayName || "Staff User",
-    phoneNumber: "",
-    role: "Staff",
-    assignedLocations: ["Both"],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
+  let userData;
+  
+  // Define specific staff accounts with their location assignments
+  switch (firebaseUser.email) {
+    case 'northyork@shamshiri.com':
+      userData = {
+        fullName: "North York Staff",
+        phoneNumber: "",
+        role: "Staff",
+        assignedLocations: ["North York"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      break;
+      
+    case 'thornhill@shamshiri.com':
+      userData = {
+        fullName: "Thornhill Staff",
+        phoneNumber: "",
+        role: "Staff",
+        assignedLocations: ["Thornhill"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      break;
+      
+    case 'manager@shamshiri.com':
+      userData = {
+        fullName: "Store Manager",
+        phoneNumber: "",
+        role: "Staff",
+        assignedLocations: ["Both"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      break;
+      
+    default:
+      // Fallback for any other staff emails
+      userData = {
+        fullName: "Staff User",
+        phoneNumber: "",
+        role: "Staff",
+        assignedLocations: ["Both"],
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+  }
 
   await setDoc(doc(db, 'users', firebaseUser.uid), userData);
-  console.log('Staff user document created automatically');
+  console.log('Staff user document created automatically for:', firebaseUser.email);
 
   return userData;
 };
@@ -84,10 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Auto-create user document if it doesn't exist
           if (firebaseUser.email === 'admin@shamshiri.com') {
             userData = await createAdminUser(firebaseUser);
-          } else if (firebaseUser.email === 'staff@shamshiri.com') {
-            userData = await createStaffUser(firebaseUser);
           } else {
-            // For Google Sign-in users, create as staff by default
+            // All other emails are treated as staff
             userData = await createStaffUser(firebaseUser);
           }
         }
@@ -123,17 +163,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Google login error:', error);
-      }
-      throw error;
-    }
-  };
-
   const logout = async () => {
     try {
       await signOut(auth);
@@ -154,7 +183,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     loading,
     login,
-    loginWithGoogle,
     logout,
     signup,
   };

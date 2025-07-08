@@ -31,19 +31,22 @@ service cloud.firestore {
     }
     
     // Orders collection - users can read their own orders, admins can read all
-    // Users can create orders, admins can update/delete
+    // Users can create orders, only admins can update/delete
     match /orders/{orderId} {
       allow read: if request.auth != null && 
         (resource.data.placedBy == request.auth.uid || isAdmin());
       allow create: if request.auth != null && isStaff();
-      allow update: if request.auth != null && 
-        (resource.data.placedBy == request.auth.uid || isAdmin());
-      allow delete: if isAdmin();
+      allow update, delete: if isAdmin();
     }
     
     // Settings collection - only admins can read/write
     match /settings/{settingId} {
       allow read, write: if isAdmin();
+    }
+    
+    // Mail collection - for Firebase Email Extension
+    match /mail/{mailId} {
+      allow read, write: if request.auth != null;
     }
     
     // Deny all other access

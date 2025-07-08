@@ -112,34 +112,40 @@ export const createSampleStaff = async (): Promise<void> => {
   try {
     const staffUsers = [
       {
-        email: 'staff.northyork@shamshiri.com',
+        email: 'northyork@shamshiri.com',
+        password: 'staff123',
         fullName: 'North York Staff',
         phoneNumber: '+1-416-555-0101',
         assignedLocations: ['North York']
       },
       {
-        email: 'staff.thornhill@shamshiri.com',
+        email: 'thornhill@shamshiri.com',
+        password: 'thornhill456',
         fullName: 'Thornhill Staff',
         phoneNumber: '+1-416-555-0102',
         assignedLocations: ['Thornhill']
       },
       {
-        email: 'staff.both@shamshiri.com',
-        fullName: 'Both Locations Staff',
+        email: 'manager@shamshiri.com',
+        password: 'manager789',
+        fullName: 'Store Manager',
         phoneNumber: '+1-416-555-0103',
         assignedLocations: ['Both']
       }
     ];
 
+    console.log('Staff users to create in Firebase Authentication:');
+    console.log('================================================');
     staffUsers.forEach(user => {
-      console.log('Sample staff user:');
-      console.log('Email:', user.email);
-      console.log('Full Name:', user.fullName);
-      console.log('Phone:', user.phoneNumber);
-      console.log('Role: Staff');
-      console.log('Assigned Locations:', user.assignedLocations);
+      console.log(`Email: ${user.email}`);
+      console.log(`Password: ${user.password}`);
+      console.log(`Full Name: ${user.fullName}`);
+      console.log(`Phone: ${user.phoneNumber}`);
+      console.log(`Role: Staff`);
+      console.log(`Assigned Locations: ${user.assignedLocations.join(', ')}`);
       console.log('---');
     });
+    console.log('Create these accounts in Firebase Console > Authentication > Users');
   } catch (error) {
     console.error('Error creating staff users:', error);
     throw error;

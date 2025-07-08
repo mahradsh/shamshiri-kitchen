@@ -32,12 +32,17 @@ export default function AdminPanel() {
   const [newItemName, setNewItemName] = useState('');
   const [selectedLocations, setSelectedLocations] = useState<string[]>(['North York', 'Thornhill']);
   
+  // Edit item state
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItemName, setEditingItemName] = useState('');
+  const [editingItemLocations, setEditingItemLocations] = useState<string[]>([]);
+  
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
   
   // Notification Settings state
-  const [adminPhoneNumbers, setAdminPhoneNumbers] = useState<string[]>(['', '', '', '', '', '']);
-  const [adminEmails, setAdminEmails] = useState<string[]>(['', '', '', '', '', '']);
+  const [adminPhoneNumbers, setAdminPhoneNumbers] = useState<string[]>(Array(20).fill(''));
+  const [adminEmails, setAdminEmails] = useState<string[]>(Array(20).fill(''));
   const [smsEnabled, setSmsEnabled] = useState(false);
   const [emailEnabled, setEmailEnabled] = useState(false);
 
@@ -96,10 +101,10 @@ export default function AdminPanel() {
       if (!settingsDoc.empty) {
         const settings = settingsDoc.docs[0].data();
         if (settings.phoneNumbers && Array.isArray(settings.phoneNumbers)) {
-          setAdminPhoneNumbers([...settings.phoneNumbers, '', '', '', '', '', ''].slice(0, 6));
+          setAdminPhoneNumbers([...settings.phoneNumbers, ...Array(20).fill('')].slice(0, 20));
         }
         if (settings.emailAddresses && Array.isArray(settings.emailAddresses)) {
-          setAdminEmails([...settings.emailAddresses, '', '', '', '', '', ''].slice(0, 6));
+          setAdminEmails([...settings.emailAddresses, ...Array(20).fill('')].slice(0, 20));
         }
         setSmsEnabled(settings.smsEnabled || false);
         setEmailEnabled(settings.emailEnabled || false);
@@ -110,9 +115,9 @@ export default function AdminPanel() {
           const settings = JSON.parse(saved);
           // Handle legacy single phone number or new array format
           if (settings.phoneNumbers && Array.isArray(settings.phoneNumbers)) {
-            setAdminPhoneNumbers([...settings.phoneNumbers, '', '', '', '', '', ''].slice(0, 6));
+            setAdminPhoneNumbers([...settings.phoneNumbers, ...Array(20).fill('')].slice(0, 20));
           } else if (settings.phoneNumber) {
-            setAdminPhoneNumbers([settings.phoneNumber, '', '', '', '', '']);
+            setAdminPhoneNumbers([settings.phoneNumber, ...Array(19).fill('')]);
           }
           setSmsEnabled(settings.enabled || false);
           
@@ -168,6 +173,54 @@ export default function AdminPanel() {
       } catch (error) {
         console.error('Error deleting item:', error);
         alert('Failed to delete item');
+      }
+    }
+  };
+
+  const handleEditItem = (item: Item) => {
+    setEditingItemId(item.id);
+    setEditingItemName(item.name);
+    setEditingItemLocations(item.assignedLocations);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingItemId || !editingItemName.trim()) return;
+
+    try {
+      await updateDoc(doc(db, 'items', editingItemId), {
+        name: editingItemName,
+        namePersian: editingItemName,
+        assignedLocations: editingItemLocations,
+        updatedAt: new Date()
+      });
+      
+      setEditingItemId(null);
+      setEditingItemName('');
+      setEditingItemLocations([]);
+      loadItems(); // Reload items
+    } catch (error) {
+      console.error('Error updating item:', error);
+      alert('Failed to update item');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItemId(null);
+    setEditingItemName('');
+    setEditingItemLocations([]);
+  };
+
+  const handleVoidOrder = async (orderId: string, orderNumber: string) => {
+    if (confirm(`Are you sure you want to void Order #${orderNumber}? This action cannot be undone.`)) {
+      try {
+        await updateDoc(doc(db, 'orders', orderId), {
+          status: 'Voided',
+          updatedAt: new Date()
+        });
+        loadOrders(); // Reload orders
+      } catch (error) {
+        console.error('Error voiding order:', error);
+        alert('Failed to void order');
       }
     }
   };
@@ -315,35 +368,116 @@ export default function AdminPanel() {
         <div className="divide-y divide-gray-200">
           {items.map((item) => (
             <div key={item.id} className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                {/* Item Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="bg-gray-50 rounded-lg p-3 mb-2">
-                    <h4 className="font-bold text-lg text-gray-900 farsi-item break-words" style={{ color: '#000000', direction: 'rtl', textAlign: 'center', lineHeight: '1.4' }}>
-                      {item.name}
-                    </h4>
+              {editingItemId === item.id ? (
+                /* Edit Form */
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Item Name (Persian):
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItemName}
+                      onChange={(e) => setEditingItemName(e.target.value)}
+                      placeholder="نام غذا را وارد کنید..."
+                      className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 farsi-item"
+                      style={{ direction: 'rtl', textAlign: 'right' }}
+                    />
                   </div>
-                  <div className="flex items-center justify-center">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      {item.assignedLocations.includes('Both') 
-                        ? 'North York, Thornhill' 
-                        : item.assignedLocations.join(', ')
-                      }
-                    </span>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Available At:
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <label className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors has-[:checked]:border-red-500 has-[:checked]:bg-red-50">
+                        <input
+                          type="checkbox"
+                          checked={editingItemLocations.includes('North York')}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditingItemLocations([...editingItemLocations, 'North York']);
+                            } else {
+                              setEditingItemLocations(editingItemLocations.filter(loc => loc !== 'North York'));
+                            }
+                          }}
+                          className="mr-2 w-4 h-4 text-red-600"
+                        />
+                        <span className="font-medium text-sm" style={{ color: '#000000' }}>North York</span>
+                      </label>
+                      <label className="flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors has-[:checked]:border-red-500 has-[:checked]:bg-red-50">
+                        <input
+                          type="checkbox"
+                          checked={editingItemLocations.includes('Thornhill')}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditingItemLocations([...editingItemLocations, 'Thornhill']);
+                            } else {
+                              setEditingItemLocations(editingItemLocations.filter(loc => loc !== 'Thornhill'));
+                            }
+                          }}
+                          className="mr-2 w-4 h-4 text-red-600"
+                        />
+                        <span className="font-medium text-sm" style={{ color: '#000000' }}>Thornhill</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveEdit}
+                      disabled={!editingItemName.trim() || editingItemLocations.length === 0}
+                      className="flex-1 py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="flex-1 py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium text-sm transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
-                
-                {/* Delete Button */}
-                <div className="flex justify-center sm:justify-end sm:ml-4">
-                  <button
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-red-600 hover:bg-red-50 rounded-full transition-colors border-2 border-red-200 hover:border-red-300"
-                    title="Delete item"
-                  >
-                    <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </button>
+              ) : (
+                /* Display Mode */
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                  {/* Item Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="bg-gray-50 rounded-lg p-3 mb-2">
+                      <h4 className="font-bold text-lg text-gray-900 farsi-item break-words" style={{ color: '#000000', direction: 'rtl', textAlign: 'center', lineHeight: '1.4' }}>
+                        {item.name}
+                      </h4>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        {item.assignedLocations.includes('Both') 
+                          ? 'North York, Thornhill' 
+                          : item.assignedLocations.join(', ')
+                        }
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex justify-center sm:justify-end sm:ml-4 space-x-2">
+                    <button
+                      onClick={() => handleEditItem(item)}
+                      className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-blue-600 hover:bg-blue-50 rounded-full transition-colors border-2 border-blue-200 hover:border-blue-300"
+                      title="Edit item"
+                    >
+                      <Edit className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem(item.id)}
+                      className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-red-600 hover:bg-red-50 rounded-full transition-colors border-2 border-red-200 hover:border-red-300"
+                      title="Delete item"
+                    >
+                      <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           ))}
         </div>
@@ -387,12 +521,20 @@ export default function AdminPanel() {
                       {order.status}
                     </span>
                     {order.status === 'Active' && (
-                      <button
-                        onClick={() => handleCompleteOrder(order.id)}
-                        className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
-                      >
-                        Complete
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleCompleteOrder(order.id)}
+                          className="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                        >
+                          Complete
+                        </button>
+                        <button
+                          onClick={() => handleVoidOrder(order.id, order.orderNumber)}
+                          className="px-3 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+                        >
+                          Void
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -456,9 +598,9 @@ export default function AdminPanel() {
               </div>
               
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Admin Phone Numbers (up to 6):
+                Admin Phone Numbers (up to 20):
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {adminPhoneNumbers.map((phoneNumber, index) => (
                   <input
                     key={index}
@@ -496,9 +638,9 @@ export default function AdminPanel() {
               </div>
               
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Admin Email Addresses (up to 6):
+                Admin Email Addresses (up to 20):
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {adminEmails.map((email, index) => (
                   <input
                     key={index}
@@ -574,6 +716,45 @@ export default function AdminPanel() {
          </div>
        </div>
 
+       {/* Email Debug Information */}
+       <div className="mb-8">
+         <h4 className="text-md font-semibold text-gray-800 mb-4">Email System Debug</h4>
+         <div className="bg-yellow-50 rounded-lg p-4">
+           <div className="space-y-3">
+             <div className="flex justify-between items-center">
+               <span className="text-sm font-medium text-yellow-800">Email Notifications:</span>
+               <span className={`px-2 py-1 rounded text-xs font-medium ${
+                 emailEnabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+               }`}>
+                 {emailEnabled ? 'Enabled' : 'Disabled'}
+               </span>
+             </div>
+             <div className="flex justify-between items-center">
+               <span className="text-sm font-medium text-yellow-800">Configured Emails:</span>
+               <span className="text-sm text-yellow-700">
+                 {adminEmails.filter(email => email.trim()).length} addresses
+               </span>
+             </div>
+             <div className="flex justify-between items-center">
+               <span className="text-sm font-medium text-yellow-800">Firebase Extension:</span>
+               <span className="text-sm text-yellow-700">Check Firebase Console</span>
+             </div>
+           </div>
+           
+           <div className="mt-4 p-3 bg-white rounded border border-yellow-200">
+             <p className="text-xs font-medium text-yellow-800 mb-2">To test email system:</p>
+             <ol className="text-xs text-yellow-700 space-y-1 list-decimal list-inside">
+               <li>Make sure &quot;Enable email notifications&quot; is checked above</li>
+               <li>Add at least one email address in the fields above</li>
+               <li>Click &quot;Save Notification Settings&quot;</li>
+               <li>Place a test order from staff account</li>
+               <li>Check Firebase Console → Firestore → &quot;mail&quot; collection for new documents</li>
+               <li>Check email inbox for notifications</li>
+             </ol>
+           </div>
+         </div>
+       </div>
+
       {/* User Management */}
       <div>
         <h4 className="text-md font-semibold text-gray-800 mb-4">User Management</h4>
@@ -583,7 +764,7 @@ export default function AdminPanel() {
             <div className="flex justify-between items-center p-3 bg-white rounded-lg border">
               <div>
                 <p className="text-sm font-medium text-gray-900">Firebase Authentication</p>
-                <p className="text-xs text-gray-600">Email/Password & Google Sign-in</p>
+                <p className="text-xs text-gray-600">Email/Password Authentication</p>
               </div>
               <span className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full font-medium">
                 Active

@@ -56,10 +56,24 @@ function ItemsPageContent() {
         ...doc.data()
       } as Item));
 
-      // Filter items based on location
+      // Filter items based on location for specific staff accounts
+      const getUserLocationAccess = (userEmail: string): string[] => {
+        switch (userEmail) {
+          case 'northyork@shamshiri.com':
+            return ['North York', 'Both'];
+          case 'thornhill@shamshiri.com':
+            return ['Thornhill', 'Both'];
+          case 'manager@shamshiri.com':
+            return ['North York', 'Thornhill', 'Both'];
+          default:
+            // Fallback for other accounts (including admin)
+            return ['North York', 'Thornhill', 'Both'];
+        }
+      };
+
+      const allowedLocations = getUserLocationAccess(user?.email || '');
       const filteredItems = itemsData.filter(item => 
-        item.assignedLocations.includes('Both') || 
-        item.assignedLocations.includes(location! as any)
+        item.assignedLocations.some(loc => allowedLocations.includes(loc))
       );
 
       setItems(filteredItems.sort((a, b) => a.displayOrder - b.displayOrder));
