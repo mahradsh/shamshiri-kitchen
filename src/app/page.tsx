@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../lib/auth-context';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import Image from 'next/image';
+import DashiFooter from '../components/DashiFooter';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -178,14 +179,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 text-center">
-            <p 
-              className="text-sm"
-              style={{ color: '#6b7280' }}
-            >
-              © 2025 Shamshiri Kitchen - All Rights Reserved
-            </p>
-          </div>
+          <DashiFooter />
 
           {/* Development helper - only show in development */}
           {process.env.NODE_ENV === 'development' && (

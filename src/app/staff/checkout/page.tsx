@@ -8,6 +8,7 @@ import { db } from '../../../lib/firebase';
 import { Item } from '../../../types';
 import { ArrowLeft, CheckCircle, Calendar, MapPin, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import DashiFooter from '../../../components/DashiFooter';
 
 interface CartItem {
   item: {
@@ -101,6 +102,11 @@ function CheckoutPageContent() {
     }
   };
 
+  const handleGoBack = () => {
+    // Navigate back to items page while preserving location and date
+    router.push(`/staff/items?location=${encodeURIComponent(location!)}&date=${date}`);
+  };
+
   if (!cart) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -186,6 +192,18 @@ function CheckoutPageContent() {
           >
             {loading ? 'Placing Order...' : 'Place Order'}
           </button>
+
+          {/* Back Button */}
+          <button
+            onClick={handleGoBack}
+            disabled={loading}
+            className="w-full mt-3 py-3 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Back to Items
+          </button>
+
+          {/* Dashi Footer */}
+          <DashiFooter />
         </div>
       </main>
     </div>

@@ -8,6 +8,7 @@ import { db } from '../../lib/firebase';
 import { Location } from '../../types';
 import { MapPin, LogOut, ShoppingCart, Calendar, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
+import DashiFooter from '../../components/DashiFooter';
 
 interface Order {
   id: string;
@@ -344,6 +345,9 @@ function StaffDashboardContent() {
             Logout
           </button>
         </div>
+
+        {/* Dashi Footer */}
+        <DashiFooter />
       </main>
     </div>
   );

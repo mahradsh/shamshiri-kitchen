@@ -8,6 +8,7 @@ import { db } from '../../../lib/firebase';
 import { Item } from '../../../types';
 import { Search, Minus, Plus } from 'lucide-react';
 import Image from 'next/image';
+import DashiFooter from '../../../components/DashiFooter';
 
 interface CartItem {
   item: Item;
@@ -42,6 +43,33 @@ function ItemsPageContent() {
 
     loadItems();
   }, [user, location, date, router, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load cart from localStorage when component mounts
+  useEffect(() => {
+    const savedCart = localStorage.getItem('orderCart');
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        if (parsedCart.items && Array.isArray(parsedCart.items)) {
+          setCart(parsedCart.items);
+        }
+      } catch (error) {
+        console.error('Error parsing saved cart:', error);
+      }
+    }
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    if (location && date && cart.length >= 0) {
+      const cartData = {
+        items: cart,
+        location,
+        date,
+      };
+      localStorage.setItem('orderCart', JSON.stringify(cartData));
+    }
+  }, [cart, location, date]);
 
   const loadItems = async () => {
     try {
@@ -168,13 +196,15 @@ function ItemsPageContent() {
 
           {/* Search */}
           <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10 pointer-events-none">
+              <Search className="text-gray-400 w-5 h-5" />
+            </div>
             <input
               type="text"
               placeholder="Search items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-base"
               style={{ 
                 backgroundColor: '#ffffff',
                 color: '#000000'
@@ -240,6 +270,9 @@ function ItemsPageContent() {
               Continue
             </button>
           </div>
+
+          {/* Dashi Footer */}
+          <DashiFooter />
         </div>
       </main>
     </div>

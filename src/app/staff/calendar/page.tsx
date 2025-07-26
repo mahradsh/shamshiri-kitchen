@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../lib/auth-context';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import DashiFooter from '../../../components/DashiFooter';
 
 function CalendarPageContent() {
   const { user, loading: authLoading } = useAuth();
@@ -64,7 +65,8 @@ function CalendarPageContent() {
 
   const isDateSelectable = (day: number) => {
     const date = new Date(currentYear, currentMonth, day);
-    return date >= today;
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return date >= todayDate;
   };
 
   const renderCalendarDays = () => {
@@ -175,6 +177,9 @@ function CalendarPageContent() {
           >
             Continue
           </button>
+
+          {/* Dashi Footer */}
+          <DashiFooter />
         </div>
       </main>
     </div>

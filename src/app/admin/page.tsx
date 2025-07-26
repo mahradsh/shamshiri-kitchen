@@ -18,6 +18,7 @@ import { db } from '../../lib/firebase';
 import { Item, Order } from '../../types';
 import { Trash2, Edit } from 'lucide-react';
 import Image from 'next/image';
+import DashiFooter from '../../components/DashiFooter';
 
 type ActiveTab = 'items' | 'orders' | 'users';
 
@@ -871,6 +872,9 @@ export default function AdminPanel() {
             Logout
           </button>
         </div>
+
+        {/* Dashi Footer */}
+        <DashiFooter />
       </main>
     </div>
   );
